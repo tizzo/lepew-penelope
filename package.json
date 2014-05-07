@@ -1,0 +1,18 @@
+{
+  "name": "lepew-penelope",
+  "version": "0.0.0",
+  "description": "A simple task wrapper that produces json event streams from the wrapped sub-processes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tizzo/lepew-penelope.git"
+  },
+  "author": "Howard Tyson",
+  "license": "GPL2",
+  "bugs": {
+    "url": "https://github.com/tizzo/lepew-penelope/issues"
+  }
+}
