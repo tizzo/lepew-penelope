@@ -24,6 +24,10 @@ Penelope.prototype.runCommand = function() {
   // Commandante provides us a full duplex stream.
   var stream = run.apply(null, arguments);
   stream.pipe(this.rawStream);
+  var self = this;
+  stream.on('error', function() {
+    self.eventStream.end();
+  });
   stream
     .pipe(es.split())
     .pipe(this.createEventStream(arguments[0], 'stdout'))
