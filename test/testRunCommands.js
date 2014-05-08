@@ -1,5 +1,6 @@
 var should = require('should');
 var Penelope = require('../index');
+var es = require('event-stream');
 
 describe('Penelope', function() {
   describe('createEventStream', function() {
@@ -27,6 +28,11 @@ describe('Penelope', function() {
   });
   it('should start a subcommand.', function(done) {
     var runner = new Penelope();
-    done();
+    runner.eventStream
+      .pipe(es.stringify())
+      .pipe(process.stdout);
+    runner.eventStream.on('end', done);
+    // Our process might be called node or nodejs depending on distro.
+    runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50]);
   });
 });
