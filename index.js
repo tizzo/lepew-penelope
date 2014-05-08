@@ -4,7 +4,7 @@ var es = require('event-stream');
 // Constructor function.
 var Penelope = function() {
   this.runCommand = this.runCommand.bind(this);
-  this.getEventStream = this.getEventStream.bind(this);
+  this.createEventStream = this.createEventStream.bind(this);
 };
 
 // The array of running streams (wrapped by commandante.
@@ -12,7 +12,7 @@ Penelope.prototype.processStreams = [];
 
 // The unified raw event stream of output (stdout and stderr) from all child
 // processes.
-Penelope.prototype.rawstream = es.through();
+Penelope.prototype.rawStream = es.through();
 
 // The unified event stream of all running subprocesses.
 // Each message is a hash with message content, command, and stream.
@@ -20,6 +20,8 @@ Penelope.prototype.eventStream = es.through();
 
 // Run a command as a child process.
 Penelope.prototype.runCommand = function() {
+
+  // Commandante provides us a full duplex stream.
   var stream = run.apply(null, arguments);
   stream.pipe(this.rawStream);
   stream
@@ -34,7 +36,7 @@ Penelope.prototype.runCommand = function() {
 };
 
 // Get a throughstream.
-Penelope.prototype.getEventStream = function(name, streamName) {
+Penelope.prototype.createEventStream = function(name, streamName) {
   return es.through(function(data) {
     data = {
       message: data,
