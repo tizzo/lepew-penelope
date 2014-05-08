@@ -2,11 +2,11 @@ var should = require('should');
 var Penelope = require('../index');
 
 describe('Penelope', function() {
-  describe('getEventStream', function() {
+  describe('createEventStream', function() {
     it('should return an event stream that decorates events', function() {
       var runner = new Penelope();
-      var stream1 = runner.getEventStream('foo', 'stdout');
-      var stream2 = runner.getEventStream('bar', 'stderr');
+      var stream1 = runner.createEventStream('foo', 'stdout');
+      var stream2 = runner.createEventStream('bar', 'stderr');
       var events = [];
       var eventHandler = function(data) {
         events.push(data);
