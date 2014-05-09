@@ -31,7 +31,7 @@
   },
   "config": {
     "blanket": {
-      "pattern": "//index.js)/"
+      "pattern": "//index.js/"
     }
   }
 }
