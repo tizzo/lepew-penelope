@@ -12,6 +12,7 @@ var boop = setInterval(function() {
 setTimeout(function() {
   clearInterval(beep);
   clearInterval(boop);
-  console.log('here');
-  process.exit(1);
+  process.exit(0);
 }, process.argv[3]);
+
+

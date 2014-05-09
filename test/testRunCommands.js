@@ -1,6 +1,8 @@
 var should = require('should');
-var Penelope = require('../index');
+var Penelope = require('..');
 var es = require('event-stream');
+
+var filter = require('./helpers/filter');
 
 describe('Penelope', function() {
   describe('createEventStream', function() {
@@ -26,13 +28,31 @@ describe('Penelope', function() {
       events[2].message.should.equal('here is more stuff');
     });
   });
-  it('should start a subcommand.', function(done) {
-    var runner = new Penelope();
-    runner.eventStream
-      .pipe(es.stringify())
-      .pipe(process.stdout);
-    runner.eventStream.on('end', done);
-    // Our process might be called node or nodejs depending on distro.
-    runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50]);
+  describe('runCommand', function() {
+  //*
+    it('should start a subcommand.', function(done) {
+      var runner = new Penelope();
+      runner.eventStream
+        .pipe(filter({stream: 'stdout'}))
+        .pipe(es.writeArray(function(error, array) {
+          array.length.should.be.greaterThan(1);
+          array[0].message.should.equal('beep');
+          done(error);
+        }));
+      // Our process might be called node or nodejs depending on distro.
+      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50]);
+    });
+    //*/
+    it('should start multiple subcommands.', function(done) {
+      var runner = new Penelope();
+      runner.eventStream
+        .pipe(filter({stream: 'stderr'}))
+        .pipe(es.writeArray(function(error, array) {
+          done(error);
+        }));
+      // Our process might be called node or nodejs depending on distro.
+      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50, 'ping', 'pong']);
+      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50, 'boomp', 'bamp']);
+    });
   });
 });

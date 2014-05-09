@@ -5,6 +5,8 @@ var es = require('event-stream');
 var Penelope = function() {
   this.runCommand = this.runCommand.bind(this);
   this.createEventStream = this.createEventStream.bind(this);
+  this.rawStream = es.through();
+  this.eventStream = es.through();
 };
 
 // The array of running streams (wrapped by commandante.
