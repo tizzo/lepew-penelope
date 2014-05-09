@@ -28,5 +28,10 @@
     "mocha-lcov-reporter": "0.0.1",
     "blanket": "~1.1.6",
     "coveralls": "~2.10.0"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "//index.js)/"
+    }
   }
 }
