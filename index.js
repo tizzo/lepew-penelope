@@ -23,13 +23,27 @@ Penelope.prototype.eventStream = es.through();
 // Run a command as a child process.
 Penelope.prototype.runCommand = function() {
 
+  // TODO: Add some arg parsing...
+  if (typeof(arguments[arguments.length - 1]) === 'function') {
+    var done = arguments.pop();
+  }
+
+
   // Commandante provides us a full duplex stream.
   var stream = run.apply(null, arguments);
   stream.pipe(this.rawStream);
   var self = this;
   stream.on('error', function() {
     self.eventStream.end();
+    if (done) {
+      done();
+    }
   });
+  if (done) {
+    stream.on('end', function() {
+      done();
+    });
+  }
   stream
     .pipe(es.split())
     .pipe(this.createEventStream(arguments[0], 'stdout'))
