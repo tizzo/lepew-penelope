@@ -24,8 +24,10 @@ Penelope.prototype.eventStream = null;
 Penelope.prototype.runCommand = function() {
 
   // TODO: Add some arg parsing...
-  if (typeof(arguments[arguments.length - 1]) === 'function') {
-    var done = arguments.pop();
+  // Convert args to an array so that it's easier to work with.
+  var args = Array.prototype.slice.call(arguments, 0);
+  if (typeof(args[args.length - 1]) === 'function') {
+    var done = args.pop();
   }
 
 
@@ -33,15 +35,21 @@ Penelope.prototype.runCommand = function() {
   var stream = run.apply(null, arguments);
   stream.pipe(this.rawStream);
   var self = this;
-  stream.on('error', function() {
-    self.eventStream.end();
-    if (done) {
-      done();
-    }
+  // The most recent error, determines whether an error has occurred for the
+  // "done" event call.
+  var mostRecentError = null;
+  stream.on('error', function(error) {
+    mostRecentError = error;
   });
   if (done) {
-    stream.on('end', function() {
-      done();
+    stream.on('end', function(error) {
+      // It takes a two rounds of the event loop from the time the stream
+      // terminates for the error event to be thrown.
+      setImmediate(function() {
+        setImmediate(function() {
+          done(mostRecentError);
+        });
+      });
     });
   }
   stream
