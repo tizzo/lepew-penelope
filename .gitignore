@@ -23,3 +23,13 @@ build/Release
 # Deployed apps should consider commenting this line out:
 # see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
 node_modules
+
+# Don't save a coverage file.
+coverage.out
+
+# We might use a coveralls file locally, don't commit it.
+# This repo is public.
+.coveralls.yml
+
+# Vim swap files.
+*.swp
