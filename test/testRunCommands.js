@@ -29,7 +29,6 @@ describe('Penelope', function() {
     });
   });
   describe('runCommand', function() {
-  //*
     it('should start a subcommand.', function(done) {
       var runner = new Penelope();
       runner.eventStream
@@ -42,7 +41,21 @@ describe('Penelope', function() {
       // Our process might be called node or nodejs depending on distro.
       runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50]);
     });
-    //*/
+    it('should call a provided callback when a subcommand completes.', function(done) {
+      var runner = new Penelope();
+      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50], function(error) {
+        should.not.exist(error);
+        done();
+      });
+    });
+    it('should call a provided callback with an error if the subcommand exits non-zero.', function(done) {
+      var runner = new Penelope();
+      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50, 'beep', 'boop', 2], function(error) {
+        should.exist(error);
+        error.message.should.match(/exit code 2/);
+        done();
+      });
+    });
     it('should start multiple subcommands.', function(done) {
       var runner = new Penelope();
       runner.eventStream
