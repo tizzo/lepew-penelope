@@ -14,11 +14,11 @@ Penelope.prototype.processStreams = [];
 
 // The unified raw event stream of output (stdout and stderr) from all child
 // processes.
-Penelope.prototype.rawStream = es.through();
+Penelope.prototype.rawStream = null;
 
 // The unified event stream of all running subprocesses.
 // Each message is a hash with message content, command, and stream.
-Penelope.prototype.eventStream = es.through();
+Penelope.prototype.eventStream = null;
 
 // Run a command as a child process.
 Penelope.prototype.runCommand = function() {
