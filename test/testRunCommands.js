@@ -1,8 +1,11 @@
 var should = require('should');
 var Penelope = require('..');
 var es = require('event-stream');
+var path = require('path');
 
 var filter = require('./helpers/filter');
+
+var pathToBeeper = path.join(__dirname, 'fixtures', 'beeper.js');
 
 describe('Penelope', function() {
   describe('createEventStream', function() {
@@ -34,23 +37,29 @@ describe('Penelope', function() {
       runner.eventStream
         .pipe(filter({stream: 'stdout'}))
         .pipe(es.writeArray(function(error, array) {
-          array.length.should.be.greaterThan(1);
+          array.length.should.be.equal(5);
           array[0].message.should.equal('beep');
           done(error);
         }));
-      // Our process might be called node or nodejs depending on distro.
-      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50]);
+      var args = [
+        '--stdout-messages', 5,
+        '--stderr-messages', 5
+      ];
+      runner.runCommand(pathToBeeper, args);
     });
     it('should call a provided callback when a subcommand completes.', function(done) {
       var runner = new Penelope();
-      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50], function(error) {
+      runner.runCommand(pathToBeeper, ['--stdout-message', 'foo'], function(error) {
         should.not.exist(error);
         done();
       });
     });
     it('should call a provided callback with an error if the subcommand exits non-zero.', function(done) {
       var runner = new Penelope();
-      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50, 'beep', 'boop', 2], function(error) {
+      var args = [
+        '--exit', 2
+      ];
+      runner.runCommand(pathToBeeper, args, function(error) {
         should.exist(error);
         error.message.should.match(/exit code 2/);
         done();
@@ -64,8 +73,8 @@ describe('Penelope', function() {
           done(error);
         }));
       // Our process might be called node or nodejs depending on distro.
-      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50, 'ping', 'pong']);
-      runner.runCommand(process.title, ['test/fixtures/beeper.js', 10, 50, 'boomp', 'bamp']);
+      runner.runCommand(pathToBeeper, ['--stdout-message', 'ping', '--stderr-message', 'pong']);
+      runner.runCommand(pathToBeeper, ['--stdout-message', 'beemp', '--stderr-message', 'bomp']);
     });
   });
 });
