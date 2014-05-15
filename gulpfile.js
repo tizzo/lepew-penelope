@@ -9,13 +9,9 @@ var paths = {
 };
 
 gulp.task('test', function() {
-  try {
-    gulp.src(paths.tests)
-      .pipe(mocha({reporter: 'spec'}));
-  }
-  catch (e) {
-    console.error('Mocha tests failed');
-  }
+  gulp.src(paths.tests)
+    .pipe(mocha({reporter: 'spec'}))
+    .on('error', console.error);
 });
 
 gulp.task('jshint', function() {
