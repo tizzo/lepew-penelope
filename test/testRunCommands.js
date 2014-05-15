@@ -11,8 +11,8 @@ describe('Penelope', function() {
   describe('createEventStream', function() {
     it('should return an event stream that decorates events', function() {
       var runner = new Penelope();
-      var stream1 = runner.createEventStream('foo', 'stdout');
-      var stream2 = runner.createEventStream('bar', 'stderr');
+      var stream1 = runner.createEventStream('one', 'foo', 'stdout');
+      var stream2 = runner.createEventStream('two', 'bar', 'stderr');
       var events = [];
       var eventHandler = function(data) {
         events.push(data);
@@ -45,11 +45,12 @@ describe('Penelope', function() {
         '--stdout-messages', 5,
         '--stderr-messages', 5
       ];
-      runner.runCommand(pathToBeeper, args);
+      should.exist(bonk);
+      runner.runCommand('one', pathToBeeper, args);
     });
     it('should call a provided callback when a subcommand completes.', function(done) {
       var runner = new Penelope();
-      runner.runCommand(pathToBeeper, ['--stdout-message', 'foo'], function(error) {
+      runner.runCommand('foo', pathToBeeper, ['--stdout-message', 'foo'], function(error) {
         should.not.exist(error);
         done();
       });
@@ -59,7 +60,7 @@ describe('Penelope', function() {
       var args = [
         '--exit', 2
       ];
-      runner.runCommand(pathToBeeper, args, function(error) {
+      runner.runCommand('one', pathToBeeper, args, function(error) {
         should.exist(error);
         error.message.should.match(/exit code 2/);
         done();
@@ -67,14 +68,19 @@ describe('Penelope', function() {
     });
     it('should start multiple subcommands.', function(done) {
       var runner = new Penelope();
-      runner.eventStream
-        .pipe(filter({stream: 'stderr'}))
-        .pipe(es.writeArray(function(error, array) {
-          done(error);
-        }));
+      
+      async.parallel([
+        function(cb) {
+          runner.eventStream
+            .pipe(filter({stream: 'stderr'}))
+            .pipe(es.writeArray(function(error, array) {
+              cb(error);
+            }));
+        },
+      ], done);
       // Our process might be called node or nodejs depending on distro.
-      runner.runCommand(pathToBeeper, ['--stdout-message', 'ping', '--stderr-message', 'pong']);
-      runner.runCommand(pathToBeeper, ['--stdout-message', 'beemp', '--stderr-message', 'bomp']);
+      runner.runCommand('one', pathToBeeper, ['--stdout-message', 'ping', '--stderr-message', 'pong']);
+      runner.runCommand('two', pathToBeeper, ['--stdout-message', 'beemp', '--stderr-message', 'bomp']);
     });
   });
 });
