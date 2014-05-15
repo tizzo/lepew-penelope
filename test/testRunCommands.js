@@ -2,6 +2,7 @@ var should = require('should');
 var Penelope = require('..');
 var es = require('event-stream');
 var path = require('path');
+var async = require('async');
 
 var filter = require('./helpers/filter');
 
