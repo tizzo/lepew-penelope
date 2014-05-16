@@ -38,8 +38,8 @@ describe('Penelope', function() {
       runner.eventStream
         .pipe(filter({stream: 'stdout'}))
         .pipe(es.writeArray(function(error, array) {
-          console.log(array);
-          array.length.should.be.equal(5);
+          // On some systems we get an empty last message on stdout.
+          array.length.should.be.within(5, 6);
           array[0].message.should.equal('beep');
           done(error);
         }));
