@@ -63,7 +63,7 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
     .pipe(this.eventStream);
   stream.stderr
     .pipe(es.split())
-    .pipe(this.createEventStream(arguments[0], 'stderr'))
+    .pipe(this.createEventStream(name, command, 'stderr'))
     .pipe(this.eventStream);
   this.processStreams.push(stream);
 };
