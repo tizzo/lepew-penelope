@@ -38,6 +38,7 @@ describe('Penelope', function() {
       runner.eventStream
         .pipe(filter({stream: 'stdout'}))
         .pipe(es.writeArray(function(error, array) {
+          console.log(array);
           array.length.should.be.equal(5);
           array[0].message.should.equal('beep');
           done(error);
