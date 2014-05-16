@@ -17,7 +17,6 @@
     "url": "https://github.com/tizzo/lepew-penelope/issues"
   },
   "dependencies": {
-    "comandante": "0.0.1",
     "event-stream": "~3.1.5",
     "stream-array": "~0.1.3",
     "async": "~0.8.0",

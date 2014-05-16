@@ -63,7 +63,7 @@ describe('Penelope', function() {
       ];
       runner.runCommand('one', pathToBeeper, args, function(error) {
         should.exist(error);
-        error.message.should.match(/exit code 2/);
+        error.message.should.match(/exited with code 2/);
         done();
       });
     });

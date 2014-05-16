@@ -1,4 +1,5 @@
-var run = require('comandante');
+var util = require('util');
+var spawn = require('child_process').spawn;
 var es = require('event-stream');
 
 // Constructor function.
@@ -37,35 +38,30 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
   var name = args.shift();
 
   // Commandante provides us a full duplex stream.
-  var stream = run.apply(null, args);
-  stream.pipe(this.rawStream);
+  var child = spawn.apply(null, args);
+  child.stdout.pipe(this.rawStream);
+  child.stderr.pipe(this.rawStream);
   var self = this;
-  // The most recent error, determines whether an error has occurred for the
-  // "done" event call.
-  var mostRecentError = null;
-  stream.on('error', function(error) {
-    mostRecentError = error;
-  });
   if (done) {
-    stream.on('end', function(error) {
-      // It takes a two rounds of the event loop from the time the stream
-      // terminates for the error event to be thrown.
-      setImmediate(function() {
-        setImmediate(function() {
-          done(mostRecentError);
-        });
-      });
+    child.on('error', done);
+    child.on('exit', function(code) {
+      var error = null;
+      if (code !== 0 && code !== false) {
+        var string = 'Execution of command %s named %s exited with code %s'
+        error = new Error(util.format(string, command, name, code));
+      }
+      done(error);
     });
   }
-  stream
+  child.stdout
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stdout'))
     .pipe(this.eventStream);
-  stream.stderr
+  child.stderr
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stderr'))
     .pipe(this.eventStream);
-  this.processStreams.push(stream);
+  this.processStreams.push(child);
 };
 
 // Get a throughstream.
