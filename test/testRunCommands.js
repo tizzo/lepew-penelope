@@ -46,7 +46,6 @@ describe('Penelope', function() {
         '--stdout-messages', 5,
         '--stderr-messages', 5
       ];
-      should.exist(bonk);
       runner.runCommand('one', pathToBeeper, args);
     });
     it('should call a provided callback when a subcommand completes.', function(done) {
