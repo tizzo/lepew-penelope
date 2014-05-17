@@ -11,7 +11,7 @@ var Penelope = function() {
 };
 
 // The array of running streams (wrapped by commandante.
-Penelope.prototype.processStreams = [];
+Penelope.prototype.processStreams = {};
 
 // The unified raw event stream of output (stdout and stderr) from all child
 // processes.
@@ -61,11 +61,12 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stderr'))
     .pipe(this.eventStream);
-  this.processStreams.push(child);
+  this.processStreams[name] = child;
 };
 
 // Get a throughstream.
 Penelope.prototype.createEventStream = function(name, command, streamName) {
+  var self = this;
   return es.through(function(data) {
     data = {
       name: name,
@@ -74,6 +75,13 @@ Penelope.prototype.createEventStream = function(name, command, streamName) {
       stream: streamName,
     };
     this.emit('data', data);
+  },
+  // Don't end our event stream until all of the child processes have exited.
+  function() {
+    delete self.processStreams[name];
+    if (Object.keys(self.processStreams).length === 0) {
+      this.emit('end');
+    }
   });
 };
 
