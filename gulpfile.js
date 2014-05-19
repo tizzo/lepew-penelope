@@ -17,6 +17,7 @@ gulp.task('test', function() {
 gulp.task('jshint', function() {
   var through = es.through();
   gulp.src(paths.src)
+    .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });
 
