@@ -2,7 +2,9 @@ var util = require('util');
 var spawn = require('child_process').spawn;
 var es = require('event-stream');
 
-// Constructor function.
+/**
+ * Constructor function.
+ */
 var Penelope = function() {
   this.runCommand = this.runCommand.bind(this);
   this.createEventStream = this.createEventStream.bind(this);
@@ -21,12 +23,16 @@ Penelope.prototype.rawStream = null;
 // Each message is a hash with message content, command, and stream.
 Penelope.prototype.eventStream = null;
 
-// Run a command as a child process.
-// name: A unique name for this command. Useful for differentiating two
-//   instances of the same executable.
-// command: The command to run as a subprocess.
-// args: Optional arguments to be passed to the command.
-// options: Optiontal options to be passed through to child_process.
+/**
+ * Run a command as a child process.
+ *
+ * @param {string} name A unique name for this command.
+ *     Useful for differentiating two instances of the same executable.
+ * @param {string} command The command to run as a subprocess.
+ * @param {Array} args Optional arguments to be passed to the command.
+ * @param {Object} options Optional hash passed through to child_process.
+ * @param {Function} done Optional callback to run when the child process exits.
+ */
 Penelope.prototype.runCommand = function(name, command, args, done) {
 
   // TODO: Add some arg parsing...
@@ -64,7 +70,14 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
   this.processStreams[name] = child;
 };
 
-// Get a throughstream.
+/**
+ * Get a throughstream that wraps all data passed through.
+ *
+ * @param {string} name A unique name for this event stream.
+ * @param {string} command The name of the command.
+ * @param {string} streamName The name of this stream (e.g. stdout or stderr).
+ * @return {stream} A throughstream that wraps string input.
+ */
 Penelope.prototype.createEventStream = function(name, command, streamName) {
   var self = this;
   return es.through(function(data) {
