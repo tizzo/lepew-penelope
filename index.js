@@ -88,6 +88,9 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
 Penelope.prototype.createEventStream = function(name, command, streamName) {
   var self = this;
   return es.through(function(data) {
+    if (data === '') {
+      return;
+    }
     data = {
       name: name,
       command: command,
