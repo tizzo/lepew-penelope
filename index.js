@@ -37,32 +37,39 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
 
   // TODO: Add some arg parsing...
   // Convert args to an array so that it's easier to work with.
-  var args = Array.prototype.slice.call(arguments, 0);
+  args = Array.prototype.slice.call(arguments, 0);
   if (typeof(args[args.length - 1]) === 'function') {
-    var done = args.pop();
+    done = args.pop();
   }
-  var name = args.shift();
+  name = args.shift();
 
   // Commandante provides us a full duplex stream.
   var child = spawn.apply(null, args);
+
+  // Add stdout and stderr to our unified raw stream.
   child.stdout.pipe(this.rawStream);
   child.stderr.pipe(this.rawStream);
-  var self = this;
+
+  // Bind for event processing for our done callback if we have any.
   if (done) {
     child.on('error', done);
     child.on('exit', function(code) {
       var error = null;
       if (code !== 0 && code !== false) {
-        var string = 'Execution of command %s named %s exited with code %s'
+        var string = 'Execution of command %s named %s exited with code %s';
         error = new Error(util.format(string, command, name, code));
       }
       done(error);
     });
   }
+
+  // Wrap the child stdout into our unified event stream.
   child.stdout
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stdout'))
     .pipe(this.eventStream);
+
+  // Wrap the child stdout into our unified event stream.
   child.stderr
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stderr'))
