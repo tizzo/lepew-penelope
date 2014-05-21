@@ -1,0 +1,43 @@
+#! /usr/bin/env node
+var parse = require('shell-quote').parse;
+var es = require('event-stream');
+
+var yargs = require('yargs');
+var Penelope = require('../index');
+var runner = new Penelope();
+
+argv = yargs
+  .usage('Here is usage')
+  .default('help', false)
+  .describe('help', 'Display this help text.')
+  .alias('help', 'h')
+  .alias('command', 'c')
+  .describe('command', 'A command to run as a child.')
+  .argv;
+
+if (argv.help) {
+  yargs.showHelp();
+  process.exit(0);
+}
+
+var commands = argv.command;
+
+if (typeof argv.command === 'string') {
+  commands = [ argv.command ];
+}
+
+runner.eventStream
+  .pipe(es.stringify())
+  .pipe(process.stdout);
+
+var i = null;
+for (i in commands) {
+  var command = commands[i];
+  var args = parse(command);
+  var binary = args.shift();
+  var name = binary;
+  runner.runCommand(name, binary, args);
+}
+
+
+
