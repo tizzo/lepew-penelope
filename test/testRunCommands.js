@@ -73,8 +73,35 @@ describe('Penelope', function() {
       async.parallel([
         function(cb) {
           runner.eventStream
-            .pipe(filter({stream: 'stderr'}))
+            .pipe(filter({
+              stream: 'stderr',
+              name: 'one'
+            }))
             .pipe(es.writeArray(function(error, array) {
+              array[0].message.should.equal('pong');
+              array.length.should.equal(1);
+              cb(error);
+            }));
+        },
+        function(cb) {
+          runner.eventStream
+            .pipe(filter({
+              stream: 'stdout',
+              name: 'two',
+            }))
+            .pipe(es.writeArray(function(error, array) {
+              array.length.should.equal(1);
+              array[0].message.should.equal('beemp');
+              cb(error);
+            }));
+        },
+        function(cb) {
+          runner.eventStream
+            .pipe(filter({
+              stream: 'stdout',
+            }))
+            .pipe(es.writeArray(function(error, array) {
+              array.length.should.equal(2);
               cb(error);
             }));
         },
