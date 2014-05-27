@@ -7,7 +7,7 @@ var Penelope = require('../index');
 var runner = new Penelope();
 
 argv = yargs
-  .usage('Here is usage')
+  .usage('penelope -c "echo foo" -c "echo bar"')
   .default('help', false)
   .describe('help', 'Display this help text.')
   .alias('help', 'h')
