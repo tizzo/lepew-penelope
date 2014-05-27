@@ -74,7 +74,6 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stderr'))
     .pipe(this.eventStream);
-  this.processStreams[name] = child;
 };
 
 /**
@@ -87,7 +86,7 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
  */
 Penelope.prototype.createEventStream = function(name, command, streamName) {
   var self = this;
-  return es.through(function(data) {
+  return this.processStreams[name + ':' + streamName] = es.through(function(data) {
     if (data === '') {
       return;
     }
@@ -101,7 +100,7 @@ Penelope.prototype.createEventStream = function(name, command, streamName) {
   },
   // Don't end our event stream until all of the child processes have exited.
   function() {
-    delete self.processStreams[name];
+    delete self.processStreams[name + ':' + streamName];
     if (Object.keys(self.processStreams).length === 0) {
       this.emit('end');
     }
