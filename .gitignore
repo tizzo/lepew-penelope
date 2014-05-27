@@ -33,3 +33,6 @@ coverage.out
 
 # Vim swap files.
 *.swp
+
+# Locally generated coverage reports
+coverage.html
