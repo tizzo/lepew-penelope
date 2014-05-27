@@ -11,6 +11,9 @@ module.exports = function filter(options) {
       if (data.hasOwnProperty(option) && data[option] == options[option]) {
         match = true;
       }
+      else {
+        return;
+      }
     }
     if (match) {
       this.emit('data', data);
