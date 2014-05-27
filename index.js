@@ -86,7 +86,7 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
  */
 Penelope.prototype.createEventStream = function(name, command, streamName) {
   var self = this;
-  return this.processStreams[name + ':' + streamName] = es.through(function(data) {
+  this.processStreams[name + ':' + streamName] = es.through(function(data) {
     if (data === '') {
       return;
     }
@@ -105,6 +105,7 @@ Penelope.prototype.createEventStream = function(name, command, streamName) {
       this.emit('end');
     }
   });
+  return this.processStreams[name + ':' + streamName];
 };
 
 module.exports = Penelope;
