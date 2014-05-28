@@ -22,6 +22,9 @@ gulp.task('jshint', function() {
 });
 
 gulp.task('watch', function() {
+  gulp.src(paths.tests)
+    .pipe(mocha({reporter: 'spec'}))
+    .on('error', console.error);
   gulp.watch(paths.tests, ['jshint', 'test']);
   gulp.watch(paths.src, ['jshint', 'test']);
 });
