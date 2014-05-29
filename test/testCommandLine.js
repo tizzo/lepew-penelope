@@ -93,7 +93,6 @@ describe('penelope executable', function() {
       var stream = run(path.join(__dirname, '..', 'bin', 'penelope'), ['non-existant file']);
       stream.on('error', function(error) {
         should.exist(error);
-        console.log(error);
         error.message.should.containEql('non-zero exit code 1');
         done();
       });

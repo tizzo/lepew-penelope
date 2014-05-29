@@ -4,6 +4,7 @@ var es = require('event-stream');
 var async = require('async');
 var fs = require('fs');
 var util = require('util');
+var path = require('path');
 
 var yargs = require('yargs');
 var Penelope = require('../index');
@@ -42,23 +43,36 @@ for (i in commands) {
   runner.runCommand(name, binary, args);
 }
 
+// TODO: Move this into it's own include module.
 var files = argv._;
 if (files.length > 0) {
   var fileLoadHandler = function(error, files) {
     if (error && error.code === 'ENOENT') {
       var message = 'File cannot be loaded, this may be bad permissions or a bad file path `%s`.';
-      var message = util.format(message, error.path);
-      console.error(message);
+      message = util.format(message, error.path);
       process.exit(1);
     }
-    async.each(files, JSON.parse, function(error, items) {
-      console.log(arguments);
-      process.exit(1);
+  };
+
+  // Map resolve the paths
+  files = files.map(function(localPath) {
+    return path.resolve(path.join(process.cwd(), localPath));
+  });
+
+  var readFile = function(filePath, done) {
+    fs.readFile(filePath, function(error, buffer) {
+      if (error) {
+        return done(error);
+      }
+      try {
+        var config = JSON.parse(buffer.toString('utf8'));
+        done(error, {filePath: filePath, config: config});
+      }
+      catch (e) {
+        console.error(util.format('Parsing file `%s` failed.', filePath), e);
+        done(new Error('Parsing file failed.'));
+      }
     });
-  }
-  async.each(files, fs.readFile, fileLoadHandler);
+  };
+  async.map(files, readFile, fileLoadHandler);
 }
-
-
-
-
