@@ -8,6 +8,7 @@ var path = require('path');
 
 var yargs = require('yargs');
 var Penelope = require('../index');
+var loadFileConfig = require('../lib/loadFileConfig');
 var runner = new Penelope();
 
 argv = yargs
@@ -43,36 +44,27 @@ for (i in commands) {
   runner.runCommand(name, binary, args);
 }
 
+/**
+ * Properly handle an error.
+ */
+var handleError = function(error) {
+  var message = 'File cannot be loaded, an unexpected error occurred while loading `%s`.';
+  switch (error.code) {
+    case 'ENOENT':
+      message = 'File cannot be loaded, this may be bad permissions or a bad file path `%s`.';
+      break;
+    case 'PARSE':
+      message = 'File `%s` cannot be parsed.';
+      break;
+  }
+  message = util.format(message, error.path);
+  console.error(message);
+  process.exit(1);
+};
+
 // TODO: Move this into it's own include module.
 var files = argv._;
-if (files.length > 0) {
-  var fileLoadHandler = function(error, files) {
-    if (error && error.code === 'ENOENT') {
-      var message = 'File cannot be loaded, this may be bad permissions or a bad file path `%s`.';
-      message = util.format(message, error.path);
-      process.exit(1);
-    }
-  };
+loadFileConfig(files, function(error, configs) {
+  if (error) handleError(error);
+});
 
-  // Map resolve the paths
-  files = files.map(function(localPath) {
-    return path.resolve(path.join(process.cwd(), localPath));
-  });
-
-  var readFile = function(filePath, done) {
-    fs.readFile(filePath, function(error, buffer) {
-      if (error) {
-        return done(error);
-      }
-      try {
-        var config = JSON.parse(buffer.toString('utf8'));
-        done(error, {filePath: filePath, config: config});
-      }
-      catch (e) {
-        console.error(util.format('Parsing file `%s` failed.', filePath), e);
-        done(new Error('Parsing file failed.'));
-      }
-    });
-  };
-  async.map(files, readFile, fileLoadHandler);
-}

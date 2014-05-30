@@ -5,7 +5,7 @@ var es = require('event-stream');
 
 var paths = {
   tests: ['test/test*.js'],
-  src: ['index.js'],
+  src: ['index.js', 'lib/**.js', 'bin/penelope'],
 };
 
 gulp.task('test', function() {
