@@ -18,6 +18,9 @@ argv = yargs
   .alias('help', 'h')
   .alias('command', 'c')
   .describe('command', 'A command to run as a child.')
+  .describe('name', 'If present, a name for the command in the same position. The first --name will name the first --command.')
+  .alias('name', 'n')
+  .default('name', false)
   .argv;
 
 if (argv.help) {
@@ -26,7 +29,11 @@ if (argv.help) {
 }
 
 var commands = argv.command;
+if (typeof argv.name === 'string') {
+  name = [ argv.command ];
+}
 
+var name = argv.name;
 if (typeof argv.command === 'string') {
   commands = [ argv.command ];
 }
@@ -40,8 +47,11 @@ for (i in commands) {
   var command = commands[i];
   var args = parse(command);
   var binary = args.shift();
-  var name = binary;
-  runner.runCommand(name, binary, args);
+  var commandName = binary;
+  if (name !== false && name[i] !== undefined) {
+    commandName = name[i];
+  }
+  runner.runCommand(commandName, binary, args);
 }
 
 /**
