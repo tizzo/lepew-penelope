@@ -1,8 +1,9 @@
 {
-  "name": "lepew-penelope",
+  "name": "penelope",
   "version": "0.0.0",
   "description": "A simple task wrapper that produces json event streams from the wrapped sub-processes.",
   "main": "index.js",
+  "bin": "./bin/penelope",
   "scripts": {
     "test": "./node_modules/.bin/mocha",
     "watch": "./node_modules/.bin/mocha -w"
