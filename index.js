@@ -95,6 +95,7 @@ Penelope.prototype.createEventStream = function(name, command, streamName) {
       command: command,
       message: data,
       stream: streamName,
+      time: new Date().getTime(),
     };
     this.emit('data', data);
   },
