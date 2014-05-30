@@ -29,13 +29,13 @@ if (argv.help) {
 }
 
 var commands = argv.command;
-if (typeof argv.name === 'string') {
-  name = [ argv.command ];
+if (typeof argv.command === 'string') {
+  commands = [ argv.command ];
 }
 
 var name = argv.name;
-if (typeof argv.command === 'string') {
-  commands = [ argv.command ];
+if (typeof argv.name === 'string') {
+  name = [ argv.name ];
 }
 
 runner.eventStream
