@@ -1,0 +1,8 @@
+one:
+  command: echo
+  arguments:
+    - foo
+two:
+  command: bar
+  arguments:
+    - baz

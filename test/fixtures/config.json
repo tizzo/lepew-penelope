@@ -1,0 +1,17 @@
+{
+  "command one": {
+    "command": "./beeper.js",
+    "arguments": [
+      "-S",
+      "stdout message",
+      "-E",
+      "stderr message"
+    ],
+    "options": {
+      "cwd": "test/fixtures"
+    }
+  },
+  "command two": {
+    "command": "./beeper.js"
+  }
+}
