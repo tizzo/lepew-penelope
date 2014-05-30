@@ -2,8 +2,9 @@ var should = require('should');
 var validator = require('../lib/validateConfigStructure');
 
 describe('validateConfigStructure', function() {
-  it('should that the command is present', function() {
+  it('should that the command is present and is a string', function() {
     validator({'args': []}).should.equal(false);
+    validator({'command': []}).should.equal(false);
   });
   it('should not accept an array', function() {
     validator([]).should.equal(false);
