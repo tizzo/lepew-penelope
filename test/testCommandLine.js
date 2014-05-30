@@ -11,7 +11,7 @@ var penelopeBinPath = path.join(__dirname, '..', 'bin', 'penelope');
 
 describe('penelope executable', function() {
   it('should display helptext', function(done) {
-    var stream = run(path.join(__dirname, '..', 'bin', 'penelope'), ['-h']);
+    var stream = run(penelopeBinPath, ['-h']);
     var output = '';
     stream.stderr.pipe(es.through(
       function(data) {
@@ -23,6 +23,16 @@ describe('penelope executable', function() {
       }
     ))
     .pipe(process.stdout);
+  });
+  it ('should print its own version number', function(done) {
+    var stream = run(penelopeBinPath, ['-v']);
+    stream
+      .pipe(es.split())
+      .pipe(es.writeArray(function(error, array) {
+        should.exist(array[0]);
+        array[0].should.equal(require('../package').version);
+        done(error);
+      }));
   });
   it('should run a signle command', function(done) {
     var args = [

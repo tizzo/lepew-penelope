@@ -16,6 +16,9 @@ argv = yargs
   .default('help', false)
   .describe('help', 'Display this help text.')
   .alias('help', 'h')
+  .describe('version', 'Print the version number')
+  .alias('version', 'v')
+  .default('version', false)
   .alias('command', 'c')
   .describe('command', 'A command to run as a child.')
   .describe('name', 'If present, a name for the command in the same position. The first --name will name the first --command.')
@@ -25,6 +28,11 @@ argv = yargs
 
 if (argv.help) {
   yargs.showHelp();
+  process.exit(0);
+}
+
+if (argv.version) {
+  console.log(require('../package').version);
   process.exit(0);
 }
 
