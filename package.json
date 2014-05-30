@@ -1,5 +1,5 @@
 {
-  "name": "penelope",
+  "name": "lepew-penelope",
   "version": "0.0.1",
   "description": "A simple task wrapper that produces json event streams from the wrapped sub-processes.",
   "main": "index.js",
