@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha",
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha",
     "watch": "./node_modules/.bin/mocha -w"
   },
   "repository": {
@@ -34,8 +35,6 @@
     "comandante": "0.0.1",
     "should": "~3.3.1",
     "mocha": "~1.18.2",
-    "mocha-lcov-reporter": "0.0.1",
-    "blanket": "~1.1.6",
     "coveralls": "~2.10.0",
     "gulp": "~3.6.2",
     "gulp-jshint": "~1.5.5"
