@@ -4,6 +4,7 @@ var colors = require('colors');
 var moment = require('moment');
 var es = require('event-stream');
 var yargs = require('yargs');
+var formatter = require('json-stream-formatter');
 
 var filter = require('../test/helpers/filter');
 
@@ -36,43 +37,14 @@ if (argv.help) {
   process.exit(0);
 }
 
-var colorFormatter = es.through(function(data) {
-  var output = '[';
-  output += moment(data.time).format().cyan + ' ';
-  output += data.name.grey + ' ';
-  if (data.name !== data.command) {
-    output += data.command.yellow + ' ';
-  }
-  if (data.stream === 'stdout') {
-    output += data.stream.green;
-  }
-  else if (data.stream === 'stderr') {
-    output += data.stream.magenta;
-  }
-  output += '] ';
-  output += data.message;
-  output += "\n\r";
-  this.emit('data', output);
-});
-
-var plainFormatter = es.through(function(data) {
-  var output = '';
-  output += '[' + moment(data.time).format() + ' ';
-  output += data.name + ' ';
-  if (data.name !== data.command) {
-    output += data.command + ' ';
-  }
-  output += data.stream + '] ' +  data.message + "\n\r";
-  this.emit('data', output);
-});
-
-var formatter = null;
+var format = null;
 if (argv.color !== 'false' && argv.color !== false) {
-  formatter = colorFormatter;
+  format = '[{{ time | date("d/m/Y-h:m:s") | cyan }} {{ name | grey }} {{ stream }}] {{ message }}';
 }
 else {
-  formatter = plainFormatter;
+  format = '[{{ time | date("d/m/Y-h:m:s") }} {{ name }} {{ stream }}] {{ message }}';
 }
+var formatter = formatter.format(format)
 
 var parsed = process.stdin
   .pipe(es.split())
