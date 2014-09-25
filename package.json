@@ -31,11 +31,12 @@
     "yargs": "~1.2.1"
   },
   "devDependencies": {
-    "jshint": "~2.5.1",
+    "comandante": "0.0.1",
     "coveralls": "~2.10.0",
     "gulp": "~3.6.2",
     "gulp-jshint": "~1.5.5",
     "istanbul": "^0.3.2",
+    "jshint": "~2.5.1",
     "mocha": "~1.18.2",
     "should": "~3.3.1"
   }
