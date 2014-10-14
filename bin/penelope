@@ -39,17 +39,22 @@ if (argv.version) {
 
 var commands = argv.command;
 if (typeof argv.command === 'string') {
-  commands = [ argv.command ];
+  commands = [argv.command];
 }
 
 var name = argv.name;
 if (typeof argv.name === 'string') {
-  name = [ argv.name ];
+  name = [argv.name];
 }
 
 runner.eventStream
   .pipe(es.stringify())
   .pipe(process.stdout);
+
+var i = null;
+for (i in argv._) {
+  loader.add(argv._[i]);
+}
 
 var i = null;
 for (i in commands) {
