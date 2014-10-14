@@ -37,7 +37,8 @@
     "gulp-jshint": "~1.5.5",
     "gulp-mocha": "^1.1.1",
     "istanbul": "^0.3.2",
-    "jshint": "~2.5.1",
+    "jscs": "^1.6.2",
+    "jshint": "^2.5.6",
     "mocha": "~1.18.2",
     "should": "~3.3.1"
   }
