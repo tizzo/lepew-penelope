@@ -8,7 +8,6 @@ var path = require('path');
 
 var yargs = require('yargs');
 var Penelope = require('../index');
-var loadFileConfig = require('../lib/loadFileConfig');
 var runner = new Penelope();
 
 argv = yargs
@@ -63,28 +62,3 @@ for (i in commands) {
   }
   runner.runCommand(commandName, binary, args);
 }
-
-/**
- * Properly handle an error.
- */
-var handleError = function(error) {
-  var message = 'File cannot be loaded, an unexpected error occurred while loading `%s`.';
-  switch (error.code) {
-    case 'ENOENT':
-      message = 'File cannot be loaded, this may be bad permissions or a bad file path `%s`.';
-      break;
-    case 'PARSE':
-      message = 'File `%s` cannot be parsed.';
-      break;
-  }
-  message = util.format(message, error.path);
-  console.error(message);
-  process.exit(1);
-};
-
-// TODO: Move this into it's own include module.
-var files = argv._;
-loadFileConfig(files, function(error, configs) {
-  if (error) handleError(error);
-});
-

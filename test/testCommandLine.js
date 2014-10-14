@@ -98,29 +98,4 @@ describe('penelope executable', function() {
       done();
     });
   });
-  describe('should accept a configuration file as an argument', function() {
-    it('should exit non-zero with an error message if the file does not exist.', function(done) {
-      var stream = run(path.join(__dirname, '..', 'bin', 'penelope'), ['non-existant file']);
-      stream.on('error', function(error) {
-        should.exist(error);
-        error.message.should.containEql('non-zero exit code 1');
-        done();
-      });
-    });
-    it('should exit non-zero with an error message if the file cannot be parsed.', function(done) {
-      var configPath = path.join(__dirname, '..', 'test', 'fixtures', 'bad-config.json');
-      var stream = run(path.join(__dirname, '..', 'bin', 'penelope'), [configPath]);
-      async.series([
-        function(cb) {
-          stream.on('error', function(error) {
-            should.exist(error);
-            cb();
-          });
-        },
-        function(cb) {
-          cb();
-        },
-      ], done);
-    });
-  });
 });
