@@ -12,7 +12,10 @@ var Penelope = function() {
   this.eventStream = es.through();
 };
 
-// The array of running streams (wrapped by commandante.
+// The hash of running child processes.
+Penelope.prototype.processes = {};
+
+// The hash of running streams.
 Penelope.prototype.processStreams = {};
 
 // The unified raw event stream of output (stdout and stderr) from all child
@@ -35,15 +38,13 @@ Penelope.prototype.eventStream = null;
  */
 Penelope.prototype.runCommand = function(name, command, args, done) {
 
-  // TODO: Add some arg parsing...
   // Convert args to an array so that it's easier to work with.
   args = Array.prototype.slice.call(arguments, 0);
-  if (typeof(args[args.length - 1]) === 'function') {
+  if (typeof args[args.length - 1] === 'function') {
     done = args.pop();
   }
   name = args.shift();
 
-  // Commandante provides us a full duplex stream.
   var child = spawn.apply(null, args);
 
   // Add stdout and stderr to our unified raw stream.
@@ -63,13 +64,11 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
     });
   }
 
-  // Wrap the child stdout into our unified event stream.
   child.stdout
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stdout'))
     .pipe(this.eventStream);
 
-  // Wrap the child stdout into our unified event stream.
   child.stderr
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stderr'))
@@ -85,7 +84,7 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
  * @return {stream} A throughstream that wraps string input.
  */
 Penelope.prototype.createEventStream = function(name, command, streamName) {
-  var self = this;
+  var _this = this;
   this.processStreams[name + ':' + streamName] = es.through(function(data) {
     if (data === '') {
       return;
@@ -95,14 +94,14 @@ Penelope.prototype.createEventStream = function(name, command, streamName) {
       command: command,
       message: data,
       stream: streamName,
-      time: new Date().getTime(),
+      time: new Date().getTime()
     };
     this.emit('data', data);
   },
   // Don't end our event stream until all of the child processes have exited.
   function() {
-    delete self.processStreams[name + ':' + streamName];
-    if (Object.keys(self.processStreams).length === 0) {
+    delete _this.processStreams[name + ':' + streamName];
+    if (Object.keys(_this.processStreams).length === 0) {
       this.emit('end');
     }
   });
