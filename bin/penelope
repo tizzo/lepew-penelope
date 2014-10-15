@@ -8,6 +8,7 @@ var path = require('path');
 
 var yargs = require('yargs');
 var Penelope = require('../index');
+var server = require('../lib/server');
 var runner = new Penelope();
 
 argv = yargs
@@ -25,6 +26,10 @@ argv = yargs
   .default('name', false)
   .describe('port', 'Is specified, a port to listen on for control commands.')
   .alias('port', 'p')
+  .default('port', false)
+  .describe('keep-alive', 'Keep the server alive even if all processes have closed, useful if you are going to be restarting services.')
+  .alias('keep-alive', 'k')
+  .default('keep-alive', false)
   .argv;
 
 if (argv.help) {
@@ -66,4 +71,7 @@ for (i in commands) {
     commandName = name[i];
   }
   runner.runCommand(commandName, binary, args);
+
+if (argv.port) {
+  server(runner, argv);
 }
