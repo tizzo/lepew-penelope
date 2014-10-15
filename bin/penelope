@@ -5,11 +5,13 @@ var async = require('async');
 var fs = require('fs');
 var util = require('util');
 var path = require('path');
+var Loader = require('yaml-config-loader');
 
 var yargs = require('yargs');
 var Penelope = require('../index');
 var server = require('../lib/server');
 var runner = new Penelope();
+var loader = new Loader();
 
 argv = yargs
   .usage('penelope -c "echo foo" -c "echo bar"')
@@ -61,16 +63,19 @@ for (i in argv._) {
   loader.add(argv._[i]);
 }
 
-var i = null;
-for (i in commands) {
-  var command = commands[i];
-  var args = parse(command);
-  var binary = args.shift();
-  var commandName = binary;
-  if (name !== false && name[i] !== undefined) {
-    commandName = name[i];
+loader.load(function(error, config) {
+  var i = null;
+  for (i in commands) {
+    var command = commands[i];
+    var args = parse(command);
+    var binary = args.shift();
+    var commandName = binary;
+    if (name !== false && name[i] !== undefined) {
+      commandName = name[i];
+    }
+    runner.runCommand(commandName, binary, args);
   }
-  runner.runCommand(commandName, binary, args);
+});
 
 if (argv.port) {
   server(runner, argv);
