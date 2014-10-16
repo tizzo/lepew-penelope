@@ -56,7 +56,7 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
   var child = spawn.apply(null, args);
 
   this.processes[name] = child;
-  this.addConfig(name, args);
+  this.setConfig(name, args);
 
   // Add stdout and stderr to our unified raw stream.
   child.stdout.pipe(this.rawStream);
@@ -96,19 +96,25 @@ Penelope.prototype.getChildren = function() {
 /**
  * Return the currint process configurations.
  */
-Penelope.prototype.getProcessConfigs = function() {
+Penelope.prototype.getConfig = function(name) {
+  if (name !== undefined) {
+    if (this.processConfigs.hasOwnProperty(name)) {
+      return this.processConfigs[name];
+    }
+    return null;
+  }
   return this.processConfigs;
 };
 
 /**
  * Add a process configuration.
  */
-Penelope.prototype.addConfig = function(name, args) {
+Penelope.prototype.setConfig = function(name, args) {
   this.processConfigs[name] = {
     name: name,
     args: args
   };
-}
+};
 
 /**
  * Get a throughstream that wraps all data passed through.
