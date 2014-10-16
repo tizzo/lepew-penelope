@@ -72,6 +72,18 @@ describe('Penelope', function() {
       
       async.parallel([
         function(cb) {
+          var hasRun = false;
+          runner.eventStream
+            .on('data', function() {
+              if (!hasRun) {
+                hasRun = true;
+                var children = runner.getChildren();
+                Object.keys(children).length.should.equal(2);
+                cb();
+              }
+            });
+        },
+        function(cb) {
           runner.eventStream
             .pipe(filter({
               stream: 'stderr',
