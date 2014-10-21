@@ -1,8 +1,9 @@
-var should = require('should');
-var Penelope = require('..');
-var es = require('event-stream');
-var path = require('path');
-var async = require('async');
+var should = require('should'),
+  Penelope = require('..'),
+  es = require('event-stream'),
+  path = require('path'),
+  async = require('async'),
+  http = require('http');
 
 var filter = require('./helpers/filter');
 

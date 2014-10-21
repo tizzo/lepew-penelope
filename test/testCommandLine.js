@@ -1,8 +1,9 @@
-var path = require('path');
-var should = require('should');
-var run = require('comandante');
-var es = require('event-stream');
-var async = require('async');
+var path = require('path'),
+  should = require('should'),
+  http = require('http'),
+  run = require('comandante'),
+  es = require('event-stream'),
+  async = require('async');
 
 var filter = require('./helpers/filter');
 

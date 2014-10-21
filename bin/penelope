@@ -13,7 +13,7 @@ var server = require('../lib/server');
 var runner = new Penelope();
 var loader = new Loader();
 
-argv = yargs
+var argv = yargs
   .usage('penelope -c "echo foo" -c "echo bar"')
   .default('help', false)
   .describe('help', 'Display this help text.')
