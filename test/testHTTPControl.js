@@ -9,12 +9,7 @@ var should = require('should'),
 var Penelope = function() {
   this.name = 'penelope';
   this.version = '1.0.0';
-};
-
-util.inherits(Penelope, EventEmitter);
-
-Penelope.prototype.getConfig = function(name) {
-  var configs = {
+  this.configs = {
     'foo': {
       name: "test/fixtures/beeper.js",
       args: [
@@ -24,13 +19,22 @@ Penelope.prototype.getConfig = function(name) {
       ]
     }
   };
-  return configs;
+  this.children = {
+    'foo': {}
+  };
+};
+
+util.inherits(Penelope, EventEmitter);
+
+Penelope.prototype.setChild = function(name, child) {
+  this.children[name] = child;
+};
+Penelope.prototype.getConfig = function(name) {
+  return this.configs;
 };
 
 Penelope.prototype.getChildren = function() {
-  return {
-    'foo': {}
-  };
+  return this.children;
 };
 
 var config = {
@@ -44,9 +48,11 @@ describe('HTTP server', function() {
     async.parallel([
       portfinder.getPort,
       portfinder.getPort,
+      portfinder.getPort
     ], function(error, results) {
       ports['version'] = results[0];
       ports['running'] = results[1];
+      ports['delete'] = results[2];
       done();
     });
   });
@@ -73,6 +79,22 @@ describe('HTTP server', function() {
         server.close(function() {
           done();
         });
+      });
+    });
+  });
+  it('should kill a process when a delete method is called', function(done) {
+    config.port = ports['delete'];
+    var penelope = new Penelope();
+    var server = createServer(penelope, config, function() {
+      penelope.setChild('scratchy', {
+        kill: function() {
+          server.close(function() {
+            done();
+          });
+        }
+      });
+      request.del('http://localhost:' + ports['delete'] + '/running-processes/scratchy', function (error, response, body) {
+        JSON.parse(body).message.should.equal('Kill message sent');
       });
     });
   });
