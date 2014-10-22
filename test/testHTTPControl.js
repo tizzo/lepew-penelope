@@ -49,12 +49,16 @@ describe('HTTP server', function() {
       portfinder.getPort,
       portfinder.getPort,
       portfinder.getPort,
+      portfinder.getPort,
+      portfinder.getPort,
       portfinder.getPort
     ], function(error, results) {
       ports['version'] = results[0];
       ports['running'] = results[1];
       ports['delete good'] = results[2];
       ports['delete bad'] = results[3];
+      ports['keep alive on'] = results[4];
+      ports['keep alive off'] = results[5];
       done();
     });
   });
@@ -111,6 +115,44 @@ describe('HTTP server', function() {
           response.statusCode.should.equal(404);
           done();
         });
+      });
+    });
+  });
+  describe('shutdown', function() {
+    it('should kill the process when the last process exits if keepalive is off', function(done) {
+      config.port = ports['keep alive off'];
+      config.log = function(message) {
+        if (JSON.parse(message).message == 'Server successfully shutdown') {
+          done();
+        }
+      };
+      config.keepAlive = false;
+      var penelope = new Penelope();
+      var server = createServer(penelope, config, function() {
+        penelope.emit('allProcessesClosed');
+      });
+    });
+    it('should not kill the process when the last process exits if keepalive is on', function(done) {
+      config.port = ports['keep alive on'];
+      // We use a timeout to detect if the server would have closed by itself
+      // before we kill it.
+      var timedOut = false;
+      config.log = function(message) {
+        if (!timedOut && JSON.parse(message).message == 'Server successfully shutdown') {
+          done(new Error('Server shut down'));
+        }
+      };
+      config.keepAlive = true;
+      var penelope = new Penelope();
+      var server = createServer(penelope, config, function() {
+        penelope.emit('allProcessesClosed');
+        setTimeout(function() {
+          timedOut = true;
+          server.close(function() {
+            console.log('a');
+            done();
+          });
+        }, 5)
       });
     });
   });
