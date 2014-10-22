@@ -11,9 +11,13 @@ var Penelope = function() {
   this.createEventStream = this.createEventStream.bind(this);
   this.getChildren = this.getChildren.bind(this);
   this.rawStream = es.through();
+  this.rawStream.setMaxListeners(0);
   this.eventStream = es.through();
+  this.eventStream.setMaxListeners(0);
   this.processes = {};
   this.processConfigs = {};
+  this.closeStreamWithLastProcess = true;
+  this.setMaxListeners(0);
 };
 util.inherits(Penelope, EventEmitter);
 
@@ -33,6 +37,9 @@ Penelope.prototype.rawStream = null;
 // The unified event stream of all running subprocesses.
 // Each message is a hash with message content, command, and stream.
 Penelope.prototype.eventStream = null;
+
+// Whether to close the event stream with the final process.
+Penelope.prototype.closeStreamWithLastProcess = true;
 
 /**
  * Run a command as a child process.
@@ -78,12 +85,12 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
   child.stdout
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stdout'))
-    .pipe(this.eventStream);
+    .pipe(this.eventStream, {end: this.closeStreamWithLastProcess});
 
   child.stderr
     .pipe(es.split())
     .pipe(this.createEventStream(name, command, 'stderr'))
-    .pipe(this.eventStream);
+    .pipe(this.eventStream, {end: this.closeStreamWithLastProcess});
 };
 
 /**

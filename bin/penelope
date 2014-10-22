@@ -63,6 +63,10 @@ for (i in argv._) {
   loader.add(argv._[i]);
 }
 
+if (argv.keepAlive) {
+  runner.closeStreamWithLastProcess = false;
+}
+
 loader.load(function(error, config) {
   var i = null;
   for (i in commands) {
