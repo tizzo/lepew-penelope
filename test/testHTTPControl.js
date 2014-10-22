@@ -51,6 +51,7 @@ describe('HTTP server', function() {
       portfinder.getPort,
       portfinder.getPort,
       portfinder.getPort,
+      portfinder.getPort,
       portfinder.getPort
     ], function(error, results) {
       ports['version'] = results[0];
@@ -59,6 +60,8 @@ describe('HTTP server', function() {
       ports['delete bad'] = results[3];
       ports['keep alive on'] = results[4];
       ports['keep alive off'] = results[5];
+      ports['post good'] = results[6];
+      ports['post bad'] = results[6];
       done();
     });
   });
@@ -118,6 +121,47 @@ describe('HTTP server', function() {
       });
     });
   });
+  describe('POST', function() {
+    it('should issue an error if the request is incomplete', function(done) {
+      var penelope = new Penelope();
+      config.port = ports['post bad'];
+      var options = {
+        url: 'http://localhost:' + ports['post bad'] + '/running-processes/beeper',
+        form: {}
+      };
+      var server = createServer(penelope, config, function() {
+        request.post(options, function (error, response, body) {
+          response.statusCode.should.equal(503);
+          server.close(done);
+        });
+      });
+    });
+    it('should run a command when post is called with a valid request', function(done) {
+      var penelope = new Penelope();
+      var commandWasRun = false;
+      penelope.runCommand = function() {
+        commandWasRun = arguments;
+      };
+      config.port = ports['post bad'];
+      var options = {
+        url: 'http://localhost:' + ports['post bad'] + '/running-processes/beeper',
+        form: {
+          command: 'foo',
+          args: ['-c']
+        }
+      };
+      var server = createServer(penelope, config, function() {
+        request.post(options, function (error, response, body) {
+          commandWasRun[0].should.equal('beeper');
+          commandWasRun[1].should.equal('foo');
+          commandWasRun[2].length.should.equal(1);
+          commandWasRun[2][0].should.equal('-c');
+          response.statusCode.should.equal(200);
+          server.close(done);
+        });
+      });
+    });
+  });
   describe('shutdown', function() {
     it('should kill the process when the last process exits if keepalive is off', function(done) {
       config.port = ports['keep alive off'];
@@ -149,7 +193,6 @@ describe('HTTP server', function() {
         setTimeout(function() {
           timedOut = true;
           server.close(function() {
-            console.log('a');
             done();
           });
         }, 5)

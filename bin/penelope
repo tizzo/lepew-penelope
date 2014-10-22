@@ -82,5 +82,6 @@ loader.load(function(error, config) {
 });
 
 if (argv.port) {
+  argv.log = console.log;
   server(runner, argv);
 }
