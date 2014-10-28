@@ -67,6 +67,11 @@ if (argv.keepAlive) {
   runner.closeStreamWithLastProcess = false;
 }
 
+if (argv.port) {
+  argv.log = console.log;
+  server(runner, argv);
+}
+
 loader.load(function(error, config) {
   var i = null;
   for (i in commands) {
@@ -77,11 +82,7 @@ loader.load(function(error, config) {
     if (name !== false && name[i] !== undefined) {
       commandName = name[i];
     }
-    runner.runCommand(commandName, binary, args);
+    runner.setConfig(commandName, binary, args);
   }
+  runner.runConfiguredProcesses();
 });
-
-if (argv.port) {
-  argv.log = console.log;
-  server(runner, argv);
-}

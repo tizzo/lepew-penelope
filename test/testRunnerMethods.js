@@ -13,12 +13,14 @@ describe('Penelope', function() {
     describe('getConfigs', function() {
       it('should return a signle config by name', function() {
         var runner = new Penelope();
-        runner.setConfig('foo', ['bar', 'baz']);
-        runner.setConfig('bar', ['bar', 'baz']);
+        runner.setConfig('foo', 'echo', ['bar', 'baz']);
+        runner.setConfig('bar', 'echo', ['bar', 'baz']);
         var output = runner.getConfig('foo');
         var expected = {
           name: 'foo',
-          args: ['bar', 'baz']
+          command: 'echo',
+          args: ['bar', 'baz'],
+          start: true
         };
         JSON.stringify(output).should.equal(JSON.stringify(expected));
       });
@@ -30,13 +32,15 @@ describe('Penelope', function() {
       });
       it('should return all configs if no name is specified', function() {
         var runner = new Penelope();
-        runner.setConfig('foo', ['bar', 'baz']);
-        runner.setConfig('bar', ['bar', 'baz']);
+        runner.setConfig('foo', 'echo', ['bar', 'baz']);
+        runner.setConfig('bar', 'ping', ['bar', 'baz']);
         var output = runner.getConfig();
         Object.keys(output).length.should.equal(2);
         var expected = {
           name: 'foo',
-          args: ['bar', 'baz']
+          command: 'echo',
+          args: ['bar', 'baz'],
+          start: true
         };
         JSON.stringify(output['foo']).should.equal(JSON.stringify(expected));
       });

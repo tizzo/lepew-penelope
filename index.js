@@ -8,6 +8,7 @@ var EventEmitter = require('events').EventEmitter;
  */
 var Penelope = function() {
   this.runCommand = this.runCommand.bind(this);
+  this.runConfiguredProcesses = this.runConfiguredProcesses.bind(this);
   this.createEventStream = this.createEventStream.bind(this);
   this.getChildren = this.getChildren.bind(this);
   this.rawStream = es.through();
@@ -63,7 +64,7 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
   var child = spawn.apply(null, args);
 
   this.processes[name] = child;
-  this.setConfig(name, args);
+  this.setConfig(name, command, args);
 
   // Add stdout and stderr to our unified raw stream.
   child.stdout.pipe(this.rawStream);
@@ -116,11 +117,28 @@ Penelope.prototype.getConfig = function(name) {
 /**
  * Add a process configuration.
  */
-Penelope.prototype.setConfig = function(name, args) {
+Penelope.prototype.setConfig = function(name, command, args, autoStart) {
+  var start = autoStart || true;
   this.processConfigs[name] = {
     name: name,
-    args: args
+    command: command,
+    args: args,
+    start: start
   };
+};
+
+/**
+ * Run all currently configured processes that are configured to start.
+ */
+Penelope.prototype.runConfiguredProcesses = function() {
+  var i = null;
+  var config = null;
+  for (i in this.processConfigs) {
+    config = this.processConfigs[i];
+    if (config.start) {
+      this.runCommand(config.name, config.command, config.args);
+    }
+  }
 };
 
 /**
