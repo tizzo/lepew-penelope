@@ -1,0 +1,96 @@
+#! /usr/bin/env node
+var request = require('request'),
+  util = require('util'),
+  ev = require('event-stream'),
+  parse = require('shell-quote').parse,
+  yargs = require('yargs');
+
+var usage = 'penelope-control [command] [process]';
+yargs = yargs
+  .usage()
+  .describe('port', 'The port to issue commands against.')
+  .alias('port', 'p')
+  .describe('host', 'The host to issue commands against.')
+  .alias('host', 'H')
+  .default('host', 'localhost');
+var argv = yargs.argv;
+
+if (argv.h) {
+  yargs.showHelp();
+  process.exit(0);
+}
+else if (!argv.port || !argv.host) {
+  console.error('Port is a required option.');
+  process.exit(1);
+}
+
+
+var operation = argv._[0];
+
+var baseURL = 'http://' + argv.host + ':' + argv.port;
+
+switch (operation) {
+  case 'run':
+  case 'stop':
+  case 'start':
+    if (!argv._[1]) {
+      console.error(util.format('You must provide the name of the process as the second arugment when using `%s`', operation));
+      process.exit(1);
+    }
+    else {
+      var name = argv._[1];
+    }
+}
+
+try {
+  switch (operation) {
+
+    case 'log':
+      request(baseURL + '/log').pipe(process.stdout);
+      break;
+
+    case 'list':
+      request(baseURL + '/running-processes', {json: true}, function(error, response, body) {
+        if (error) throw new Error('Could not connect to service');
+        console.log(util.inspect(body, {colors: true, depth: null}));
+      });
+      break; 
+
+    case 'run':
+      var args = parse(argv.c);
+      var binary = args.shift();
+      var options = {
+        url: baseURL + '/running-processes/' + name,
+        form: {
+          command: binary,
+          args: args
+        }
+      };
+      request.post(options, function (error, response, body) {
+        if (error) throw error;
+      });
+      break;
+
+    case 'start':
+      request.put(baseURL + '/running-processes/' + name, function (error, response, body) {
+        if (error) throw error;
+        console.log(body);
+      });
+      break;
+
+    case 'stop':
+      request.del(baseURL + '/running-processes/' + name, function (error, response, body) {
+        if (error) throw error;
+        console.log(body);
+      });
+      break;
+
+    default:
+      console.error(util.format('Unsupoorted operation `%s`', operation));
+      process.exit(1);
+
+  }
+}
+catch (Error) {
+  console.log(Error.message);
+}
