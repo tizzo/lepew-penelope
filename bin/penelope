@@ -26,7 +26,7 @@ var argv = yargs
   .describe('name', 'If present, a name for the command in the same position. The first --name will name the first --command.')
   .alias('name', 'n')
   .default('name', false)
-  .describe('port', 'Is specified, a port to listen on for control commands.')
+  .describe('port', 'If specified, a port to listen on for control commands.')
   .alias('port', 'p')
   .default('port', false)
   .describe('keep-alive', 'Keep the server alive even if all processes have closed, useful if you are going to be restarting services.')
