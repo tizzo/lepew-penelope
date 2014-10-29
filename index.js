@@ -55,13 +55,13 @@ Penelope.prototype.closeStreamWithLastProcess = true;
 Penelope.prototype.runCommand = function(name, command, args, done) {
 
   // Convert args to an array so that it's easier to work with.
-  args = Array.prototype.slice.call(arguments, 0);
-  if (typeof args[args.length - 1] === 'function') {
-    done = args.pop();
+  arguments = Array.prototype.slice.call(arguments, 0);
+  if (typeof arguments[arguments.length - 1] === 'function') {
+    done = arguments.pop();
   }
-  name = args.shift();
+  name = arguments.shift();
 
-  var child = spawn.apply(null, args);
+  var child = spawn.apply(null, arguments);
 
   this.processes[name] = child;
   this.setConfig(name, command, args);
