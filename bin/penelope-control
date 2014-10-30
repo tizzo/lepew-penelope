@@ -85,12 +85,15 @@ try {
       });
       break;
 
-    default:
-      console.error(util.format('Unsupoorted operation `%s`', operation));
-      process.exit(1);
+    case undefined:
+      throw new Error(util.format('You must specify an operation'));
+      break;
 
+    default:
+      throw new Error(util.format('Unsupoorted operation `%s`', operation));
   }
 }
 catch (Error) {
   console.log(Error.message);
+  process.exit(1);
 }
