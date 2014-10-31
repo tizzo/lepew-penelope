@@ -106,7 +106,7 @@ describe('HTTP server', function() {
           }
         });
         request.del('http://localhost:' + ports['delete good'] + '/running-processes/scratchy', function (error, response, body) {
-          JSON.parse(body).message.should.equal('Kill message sent');
+          JSON.parse(body).message.should.equal(util.format('Process `%s` stopped', naem));
         });
       });
     });
