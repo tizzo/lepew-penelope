@@ -42,6 +42,15 @@ switch (operation) {
     }
 }
 
+var options = {
+  json: true
+};
+
+var genericCallback = function (error, response, body) {
+  if (error) throw error;
+  console.log(body.message);
+};
+
 try {
   switch (operation) {
 
@@ -50,7 +59,7 @@ try {
       break;
 
     case 'list':
-      request(baseURL + '/running-processes', {json: true}, function(error, response, body) {
+      request(baseURL + '/running-processes', options, function(error, response, body) {
         if (error) throw new Error('Could not connect to service');
         console.log(util.inspect(body, {colors: true, depth: null}));
       });
@@ -64,24 +73,24 @@ try {
         form: {
           command: binary,
           args: args
-        }
+        },
+        json: true
       };
-      request.post(options, function (error, response, body) {
-        if (error) throw error;
-      });
+      request.post(options, genericCallback);
       break;
 
     case 'start':
-      request.put(baseURL + '/running-processes/' + name, function (error, response, body) {
-        if (error) throw error;
-        console.log(body);
-      });
+      request.put(baseURL + '/running-processes/' + name, options, genericCallback);
       break;
 
     case 'stop':
-      request.del(baseURL + '/running-processes/' + name, function (error, response, body) {
-        if (error) throw error;
-        console.log(body);
+      request.del(baseURL + '/running-processes/' + name, options, genericCallback);
+      break;
+
+    case 'restart':
+      request.put(baseURL + '/running-processes/' + name, options, function(error, response, body) {
+        genericCallback.apply(this, arguments);
+        request.del(baseURL + '/running-processes/' + name, options, genericCallback);
       });
       break;
 
