@@ -185,6 +185,7 @@ Penelope.prototype.createEventStream = function(name, command, streamName) {
  */
 Penelope.prototype.emitEndEvent = function(name) {
   this.emit('processClosed', name);
+  this.emit('processClosed:' + name, name);
   if (Object.keys(this.processes).length === 0) {
     this.emit('allProcessesClosed');
   }
