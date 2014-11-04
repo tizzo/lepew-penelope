@@ -3,106 +3,124 @@ var request = require('request'),
   util = require('util'),
   ev = require('event-stream'),
   parse = require('shell-quote').parse,
-  yargs = require('yargs');
+  yargs = require('yargs'),
+  Loader = require('yaml-config-loader');
 
 var usage = 'penelope-control [command] [process]';
 yargs = yargs
-  .usage()
+  .usage('Usage penelope-command [process-name] [subcommand (start, stop, restart, reload, run, or list)] [args]')
   .describe('port', 'The port to issue commands against.')
   .alias('port', 'p')
   .describe('host', 'The host to issue commands against.')
   .alias('host', 'H')
-  .default('host', 'localhost');
+  .default('host', 'localhost')
+  .describe('help', 'Display this message')
+  .alias('help', 'h')
+  .describe('command', 'Only for use with the `run` subcommand. A command to run.')
+  .alias('command', 'c');
 var argv = yargs.argv;
 
-if (argv.h) {
-  yargs.showHelp();
-  process.exit(0);
-}
-else if (!argv.port || !argv.host) {
-  console.error('Port is a required option.');
-  process.exit(1);
-}
+var loader = new Loader();
+loader.add('/etc/penelope.yaml');
+loader.add(process.env['HOME'] + '/.penelope.yaml');
+loader.add(argv);
+loader.load(function(error, config) {
 
-
-var operation = argv._[0];
-
-var baseURL = 'http://' + argv.host + ':' + argv.port;
-
-switch (operation) {
-  case 'run':
-  case 'stop':
-  case 'start':
-    if (!argv._[1]) {
-      console.error(util.format('You must provide the name of the process as the second arugment when using `%s`', operation));
-      process.exit(1);
-    }
-    else {
-      var name = argv._[1];
-    }
-}
-
-var options = {
-  json: true
-};
-
-var genericCallback = function (error, response, body) {
-  if (error) throw error;
-  console.log(body.message);
-};
-
-try {
-  switch (operation) {
-
-    case 'log':
-      request(baseURL + '/log').pipe(process.stdout);
-      break;
-
-    case 'list':
-      request(baseURL + '/running-processes', options, function(error, response, body) {
-        if (error) throw new Error('Could not connect to service');
-        console.log(util.inspect(body, {colors: true, depth: null}));
-      });
-      break; 
-
-    case 'run':
-      var args = parse(argv.c);
-      var binary = args.shift();
-      var options = {
-        url: baseURL + '/running-processes/' + name,
-        form: {
-          command: binary,
-          args: args
-        },
-        json: true
-      };
-      request.post(options, genericCallback);
-      break;
-
-    case 'start':
-      request.put(baseURL + '/running-processes/' + name, options, genericCallback);
-      break;
-
-    case 'stop':
-      request.del(baseURL + '/running-processes/' + name, options, genericCallback);
-      break;
-
-    case 'restart':
-      request.put(baseURL + '/running-processes/' + name, options, function(error, response, body) {
-        genericCallback.apply(this, arguments);
-        request.del(baseURL + '/running-processes/' + name, options, genericCallback);
-      });
-      break;
-
-    case undefined:
-      throw new Error(util.format('You must specify an operation'));
-      break;
-
-    default:
-      throw new Error(util.format('Unsupoorted operation `%s`', operation));
+  if (config.help) {
+    yargs.showHelp();
+    process.exit(0);
   }
-}
-catch (Error) {
-  console.log(Error.message);
-  process.exit(1);
-}
+  else if (!config.port || !config.host) {
+    console.error('Port is a required option.');
+    process.exit(1);
+  }
+
+
+
+  var baseURL = 'http://' + config.host + ':' + config.port;
+
+  var operation = argv._[1];
+
+  switch (operation) {
+    case 'run':
+    case 'stop':
+    case 'restart':
+    case 'start':
+      if (!argv._[0]) {
+        console.error(util.format('You must provide the name of the process as the second arugment when using `%s`', operation));
+        process.exit(1);
+      }
+      else {
+        var name = argv._[0];
+      }
+  }
+
+  var options = {
+    json: true
+  };
+
+  var genericCallback = function (error, response, body) {
+    if (error) throw error;
+    console.log(body.message);
+  };
+
+  try {
+    switch (operation) {
+
+      case 'log':
+        request(baseURL + '/log').pipe(process.stdout);
+        break;
+
+      case 'list':
+        request(baseURL + '/running-processes', options, function(error, response, body) {
+          if (error) throw new Error('Could not connect to service');
+          console.log(util.inspect(body, {colors: true, depth: null}));
+        });
+        break; 
+
+      case 'run':
+        if (!config.command) {
+          console.error('--command (-c) is required for use with the run command.');
+          process.exit(1);
+        }
+        var args = parse(config.command);
+        var binary = args.shift();
+        var options = {
+          url: baseURL + '/running-processes/' + name,
+          form: {
+            command: binary,
+            args: args
+          },
+          json: true
+        };
+        request.post(options, genericCallback);
+        break;
+
+      case 'start':
+        request.put(baseURL + '/running-processes/' + name, options, genericCallback);
+        break;
+
+      case 'stop':
+        request.del(baseURL + '/running-processes/' + name, options, genericCallback);
+        break;
+
+      case 'restart':
+        request.put(baseURL + '/running-processes/' + name, options, function(error, response, body) {
+          genericCallback.apply(this, arguments);
+          request.del(baseURL + '/running-processes/' + name, options, genericCallback);
+        });
+        break;
+
+      case undefined:
+        throw new Error(yargs.help());
+        break;
+
+      default:
+        throw new Error(util.format('Unsupoorted operation `%s`', operation));
+    }
+  }
+  catch (Error) {
+    console.log(Error.message);
+    process.exit(1);
+  }
+});
