@@ -35,7 +35,7 @@ describe('penelope executable', function() {
         done(error);
       }));
   });
-  it('should run a signle command', function(done) {
+  it('should run a single command', function(done) {
     var args = [
       '-c', beeperPath
     ];
