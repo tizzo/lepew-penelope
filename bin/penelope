@@ -28,7 +28,6 @@ var argv = yargs
   .default('name', false)
   .describe('port', 'If specified, a port to listen on for control commands.')
   .alias('port', 'p')
-  .default('port', false)
   .describe('keep-alive', 'Keep the server alive even if all processes have closed, useful if you are going to be restarting services.')
   .alias('keep-alive', 'k')
   .default('keep-alive', false)
@@ -67,12 +66,14 @@ if (argv.keepAlive) {
   runner.closeStreamWithLastProcess = false;
 }
 
-if (argv.port) {
-  argv.log = console.log;
-  server(runner, argv);
-}
-
+loader.add('/etc/penelope.yaml');
+loader.add(process.env['HOME'] + '/.penelope.yaml');
+loader.add(argv);
 loader.load(function(error, config) {
+  if (config.port) {
+    config.log = console.log;
+    server(runner, config);
+  }
   var i = null;
   for (i in commands) {
     var command = commands[i];
