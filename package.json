@@ -1,6 +1,6 @@
 {
   "name": "lepew-penelope",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A simple task wrapper that produces json event streams from the wrapped sub-processes.",
   "main": "index.js",
   "bin": {
@@ -25,7 +25,7 @@
     "async": "~0.8.0",
     "event-stream": "~3.1.5",
     "json-stream-formatter": "0.0.7",
-    "restify": "^2.8.2",
+    "restify": "*",
     "shell-quote": "~1.4.1",
     "yaml-config-loader": "0.0.11",
     "yargs": "~1.2.1"
