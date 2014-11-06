@@ -1,7 +1,5 @@
 #! /usr/bin/env node
 var util = require('util');
-var colors = require('colors');
-var moment = require('moment');
 var es = require('event-stream');
 var yargs = require('yargs');
 var formatter = require('json-stream-formatter');

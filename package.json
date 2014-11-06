@@ -25,8 +25,9 @@
     "async": "~0.8.0",
     "event-stream": "~3.1.5",
     "json-stream-formatter": "0.0.7",
+    "restify": "^2.8.2",
     "shell-quote": "~1.4.1",
-    "yaml-config-loader": "0.0.7",
+    "yaml-config-loader": "0.0.11",
     "yargs": "~1.2.1"
   },
   "devDependencies": {
@@ -34,9 +35,13 @@
     "coveralls": "~2.10.0",
     "gulp": "~3.6.2",
     "gulp-jshint": "~1.5.5",
+    "gulp-mocha": "^1.1.1",
     "istanbul": "^0.3.2",
-    "jshint": "~2.5.1",
+    "jscs": "^1.6.2",
+    "jshint": "^2.5.6",
     "mocha": "~1.18.2",
+    "portfinder": "^0.2.1",
+    "request": "^2.45.0",
     "should": "~3.3.1"
   }
 }

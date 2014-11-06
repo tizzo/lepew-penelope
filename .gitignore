@@ -36,3 +36,4 @@ coverage.out
 
 # Locally generated coverage reports
 coverage.html
+*.swo
