@@ -66,6 +66,7 @@ if (argv.keepAlive) {
   runner.closeStreamWithLastProcess = false;
 }
 
+loader.on('error', function(err) {});
 loader.add('/etc/penelope.yaml');
 loader.add(process.env['HOME'] + '/.penelope.yaml');
 loader.add(argv);
