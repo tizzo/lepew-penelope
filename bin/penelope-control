@@ -60,7 +60,13 @@ loader.load(function(error, config) {
 
   var genericCallback = function (error, response, body) {
     if (error) throw error;
-    console.log(body.message);
+    if (body && body.message) {
+      console.log(body.message);
+    }
+    else {
+      console.error('An error occurred.');
+      process.exit(1);
+    }
   };
 
   try {
