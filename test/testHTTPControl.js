@@ -61,18 +61,20 @@ describe('HTTP server', function() {
       portfinder.getPort,
       portfinder.getPort,
       portfinder.getPort,
+      portfinder.getPort,
       portfinder.getPort
     ], function(error, results) {
       ports['version'] = results[0];
       ports['running'] = results[1];
-      ports['log'] = results[1];
-      ports['delete good'] = results[2];
-      ports['delete bad nonexistant'] = results[3];
-      ports['delete bad timeout'] = results[4];
-      ports['keep alive on'] = results[5];
-      ports['keep alive off'] = results[6];
-      ports['post good'] = results[7];
-      ports['post bad incomplete'] = results[8];
+      ports['running single'] = results[2];
+      ports['log'] = results[3];
+      ports['delete good'] = results[4];
+      ports['delete bad nonexistant'] = results[5];
+      ports['delete bad timeout'] = results[6];
+      ports['keep alive on'] = results[7];
+      ports['keep alive off'] = results[8];
+      ports['post good'] = results[9];
+      ports['post bad incomplete'] = results[10];
       done();
     });
   });
