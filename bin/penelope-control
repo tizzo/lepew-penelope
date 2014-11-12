@@ -4,7 +4,8 @@ var request = require('request'),
   ev = require('event-stream'),
   parse = require('shell-quote').parse,
   yargs = require('yargs'),
-  Loader = require('yaml-config-loader');
+  Loader = require('yaml-config-loader')
+  prettyjson = require('prettyjson');
 
 var usage = 'penelope-control [command] [process]';
 yargs = yargs
@@ -74,9 +75,9 @@ loader.load(function(error, config) {
       case 'list':
         request(baseURL + '/running-processes', options, function(error, response, body) {
           if (error) throw new Error('Could not connect to service');
-          console.log(util.inspect(body, {colors: true, depth: null}));
+          console.log(prettyjson.render(body, { noColor: !process.stdout.isTTY }));
         });
-        break; 
+        break;
 
       case 'run':
         if (!config.command) {
