@@ -36,23 +36,21 @@ loader.load(function(error, config) {
     process.exit(1);
   }
 
-
-
   var baseURL = 'http://' + config.host + ':' + config.port;
 
-  var operation = argv._[1];
+  var operation = argv._[0];
 
   switch (operation) {
     case 'run':
     case 'stop':
     case 'restart':
     case 'start':
-      if (!argv._[0]) {
+      if (!argv._[1]) {
         console.error(util.format('You must provide the name of the process as the second arugment when using `%s`', operation));
         process.exit(1);
       }
       else {
-        var name = argv._[0];
+        var name = argv._[1];
       }
   }
 
