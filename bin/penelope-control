@@ -85,8 +85,15 @@ loader.load(function(error, config) {
 
       case 'run':
         if (!config.command) {
-          console.error('--command (-c) is required for use with the run command.');
-          process.exit(1);
+          if (!config._[2]) {
+            console.error('--command (-c) is required for use with the run command.');
+            process.exit(1);
+          }
+          else {
+            var params = arguments = Array.prototype.slice.call(process.argv, 0);
+            var position = params.indexOf('run') + 2;
+            config.command = params.splice(position, params.length).join(' ');
+          }
         }
         var args = parse(config.command);
         var binary = args.shift();
