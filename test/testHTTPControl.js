@@ -76,7 +76,7 @@ describe('HTTP server', function() {
         request('http://localhost:' + ports['version'], function (error, response, body) {
           body = JSON.parse(body);
           body.name.should.equal('lepew-penelope');
-          body.version.should.equal('0.0.3');
+          body.version.should.equal(require('../package.json').version);
           server.close(function() {
             done();
           });
