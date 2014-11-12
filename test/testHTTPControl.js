@@ -3,6 +3,8 @@ var should = require('should'),
   portfinder = require('portfinder'),
   async = require('async'),
   util = require('util'),
+  es = require('event-stream'),
+  Readable = require('stream').Readable,
   EventEmitter = require('events').EventEmitter,
   createServer = require('../lib/server');
 
@@ -10,6 +12,9 @@ var Penelope = function() {
   var _this = this;
   this.name = 'penelope';
   this.version = '1.0.0';
+  this.eventStream = new es.through(function(data) {
+    this.emit('data', data);
+  });
   this.configs = {
     'foo': {
       name: "test/fixtures/beeper.js",
@@ -55,10 +60,12 @@ describe('HTTP server', function() {
       portfinder.getPort,
       portfinder.getPort,
       portfinder.getPort,
+      portfinder.getPort,
       portfinder.getPort
     ], function(error, results) {
       ports['version'] = results[0];
       ports['running'] = results[1];
+      ports['log'] = results[1];
       ports['delete good'] = results[2];
       ports['delete bad nonexistant'] = results[3];
       ports['delete bad timeout'] = results[4];
@@ -94,6 +101,28 @@ describe('HTTP server', function() {
             done();
           });
         });
+      });
+    });
+    it('should list the logs at `/log`', function(done) {
+      config.port = ports['log'];
+      var penelope = new Penelope();
+      var server = createServer(penelope, config, function() {
+        var logStream = request('http://localhost:' + ports['log'] + '/log')
+        logStream.pipe(es.through(function(data) {
+            var output = JSON.parse(data.toString());
+            output.name.should.equal('echo');
+            output.stream.should.equal('stdout');
+            done();
+          }));
+        // Wait for the client to connect, then emit a log event we can catch.
+        setTimeout(function() {
+          penelope.eventStream.write({
+            name: 'echo',
+            command: 'echo',
+            stream: 'stdout',
+            time: 1415766165449
+          });
+        }, 10);
       });
     });
   });
