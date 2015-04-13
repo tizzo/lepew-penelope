@@ -73,7 +73,7 @@ loader.load(function(error, config) {
     switch (operation) {
 
       case 'log':
-        request(baseURL + '/log').pipe(process.stdout);
+        request(baseURL + '/log', { timeout: false }).pipe(process.stdout);
         break;
 
       case 'list':
