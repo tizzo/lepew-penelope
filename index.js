@@ -1,7 +1,8 @@
 var util = require('util');
 var spawn = require('child_process').spawn;
-var es = require('event-stream');
 var EventEmitter = require('events').EventEmitter;
+var split2 = require('split2');
+var through2 = require('through2');
 
 /**
  * Constructor function.
@@ -11,9 +12,9 @@ var Penelope = function() {
   this.runConfiguredProcesses = this.runConfiguredProcesses.bind(this);
   this.createEventStream = this.createEventStream.bind(this);
   this.getChildren = this.getChildren.bind(this);
-  this.rawStream = es.through();
+  this.rawStream = through2();
   this.rawStream.setMaxListeners(0);
-  this.eventStream = es.through();
+  this.eventStream = through2.obj();
   this.eventStream.setMaxListeners(0);
   this.processes = {};
   this.processConfigs = {};
@@ -84,12 +85,12 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
   }
 
   child.stdout
-    .pipe(es.split())
+    .pipe(split2())
     .pipe(this.createEventStream(name, command, 'stdout'))
     .pipe(this.eventStream, {end: this.closeStreamWithLastProcess});
 
   child.stderr
-    .pipe(es.split())
+    .pipe(split2())
     .pipe(this.createEventStream(name, command, 'stderr'))
     .pipe(this.eventStream, {end: this.closeStreamWithLastProcess});
 };
@@ -151,7 +152,7 @@ Penelope.prototype.runConfiguredProcesses = function() {
  */
 Penelope.prototype.createEventStream = function(name, command, streamName) {
   var _this = this;
-  this.processStreams[name + ':' + streamName] = es.through(function(data) {
+  this.processStreams[name + ':' + streamName] = through2.obj(function(data, enc, cb) {
     if (data === '') {
       return;
     }
@@ -162,7 +163,8 @@ Penelope.prototype.createEventStream = function(name, command, streamName) {
       stream: streamName,
       time: new Date().getTime()
     };
-    this.emit('data', data);
+    this.push(data);
+    cb();
   },
   // Don't end our event stream until all of the child processes have exited.
   function() {
