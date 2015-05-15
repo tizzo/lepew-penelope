@@ -153,8 +153,8 @@ Penelope.prototype.runConfiguredProcesses = function() {
 Penelope.prototype.createEventStream = function(name, command, streamName) {
   var _this = this;
   this.processStreams[name + ':' + streamName] = through2.obj(function(data, enc, cb) {
-    if (data === '') {
-      return;
+    if (data == '') {
+      return cb();
     }
     data = {
       name: name,

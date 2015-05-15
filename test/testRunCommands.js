@@ -23,6 +23,7 @@ describe('Penelope', function() {
       stream2.on('data', eventHandler);
       stream1.write('here is some stuff');
       stream2.write('writing to stream 2');
+      stream1.write('');
       stream1.write('here is more stuff');
       events.length.should.equal(3);
       events[0].message.should.equal('here is some stuff');
@@ -122,6 +123,15 @@ describe('Penelope', function() {
       // Our process might be called node or nodejs depending on distro.
       runner.runCommand('one', pathToBeeper, ['--stdout-message', 'ping', '--stderr-message', 'pong']);
       runner.runCommand('two', pathToBeeper, ['--stdout-message', 'beemp', '--stderr-message', 'bomp']);
+    });
+  });
+  describe('runConfiguredProcesses', function() {
+    it('should start all configured processes', function(done) {
+      var runner = new Penelope();
+      runner.addProcess('successful', 'true', [], true);
+      runner.addProcess('failure', 'false', [], true);
+      runner.runConfiguredProcesses();
+      runner.on('allProcessesClosed', done);
     });
   });
 });
