@@ -65,7 +65,7 @@ Penelope.prototype.runCommand = function(name, command, args, done) {
   var child = spawn.apply(null, arguments);
 
   this.processes[name] = child;
-  this.setConfig(name, command, args);
+  this.addProcess(name, command, args);
 
   // Add stdout and stderr to our unified raw stream.
   child.stdout.pipe(this.rawStream);
@@ -118,7 +118,7 @@ Penelope.prototype.getConfig = function(name) {
 /**
  * Add a process configuration.
  */
-Penelope.prototype.setConfig = function(name, command, args, autoStart) {
+Penelope.prototype.addProcess = function(name, command, args, autoStart) {
   var start = autoStart || true;
   this.processConfigs[name] = {
     name: name,

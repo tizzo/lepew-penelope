@@ -84,7 +84,7 @@ loader.load(function(error, config) {
     if (name !== false && name[i] !== undefined) {
       commandName = name[i];
     }
-    runner.setConfig(commandName, binary, args);
+    runner.addProcess(commandName, binary, args);
   }
   runner.runConfiguredProcesses();
 });

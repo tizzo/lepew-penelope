@@ -13,8 +13,8 @@ describe('Penelope', function() {
     describe('getConfigs', function() {
       it('should return a signle config by name', function() {
         var runner = new Penelope();
-        runner.setConfig('foo', 'echo', ['bar', 'baz']);
-        runner.setConfig('bar', 'echo', ['bar', 'baz']);
+        runner.addProcess('foo', 'echo', ['bar', 'baz']);
+        runner.addProcess('bar', 'echo', ['bar', 'baz']);
         var output = runner.getConfig('foo');
         var expected = {
           name: 'foo',
@@ -26,14 +26,14 @@ describe('Penelope', function() {
       });
       it('should return null if a bad config is specified', function() {
         var runner = new Penelope();
-        runner.setConfig('foo', ['bar', 'baz']);
-        runner.setConfig('bar', ['bar', 'baz']);
+        runner.addProcess('foo', ['bar', 'baz']);
+        runner.addProcess('bar', ['bar', 'baz']);
         should.not.exist(runner.getConfig('zap'));
       });
       it('should return all configs if no name is specified', function() {
         var runner = new Penelope();
-        runner.setConfig('foo', 'echo', ['bar', 'baz']);
-        runner.setConfig('bar', 'ping', ['bar', 'baz']);
+        runner.addProcess('foo', 'echo', ['bar', 'baz']);
+        runner.addProcess('bar', 'ping', ['bar', 'baz']);
         var output = runner.getConfig();
         Object.keys(output).length.should.equal(2);
         var expected = {
