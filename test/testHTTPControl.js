@@ -17,7 +17,8 @@ var Penelope = function() {
   });
   this.configs = {
     'foo': {
-      name: "test/fixtures/beeper.js",
+      name: 'foo',
+      command: 'test/fixtures/beeper.js',
       args: [
         "--a",
         "-b",
@@ -36,7 +37,8 @@ Penelope.prototype.setChild = function(name, child) {
   this.children[name] = child;
 };
 Penelope.prototype.getConfig = function(name) {
-  return this.configs;
+  if (!name) return this.configs;
+  return this.configs[name] || null;
 };
 
 Penelope.prototype.getChildren = function() {
@@ -62,6 +64,8 @@ describe('HTTP server', function() {
       portfinder.getPort,
       portfinder.getPort,
       portfinder.getPort,
+      portfinder.getPort,
+      portfinder.getPort,
       portfinder.getPort
     ], function(error, results) {
       ports['version'] = results[0];
@@ -75,6 +79,8 @@ describe('HTTP server', function() {
       ports['keep alive off'] = results[8];
       ports['post good'] = results[9];
       ports['post bad incomplete'] = results[10];
+      ports['put bad'] = results[10];
+      ports['put good'] = results[10];
       done();
     });
   });
@@ -214,6 +220,42 @@ describe('HTTP server', function() {
         });
       });
     });
+  });
+  describe('PUT', function() {
+    it('should return a 404 if the command was not already created', function(done) {
+      var penelope = new Penelope();
+      config.port = ports['put bad'];
+      var options = {
+        url: 'http://localhost:' + ports['put bad'] + '/processes/no-good',
+      };
+      var server = createServer(penelope, config, function() {
+        request.put(options, function (error, response, body) {
+          console.log(body);
+          response.statusCode.should.equal(404);
+          server.close(done);
+        });
+      });
+    });
+    it('should return a 201 if the command was able to start', function(done) {
+      var penelope = new Penelope();
+      config.port = ports['put good'];
+      var options = {
+        url: 'http://localhost:' + ports['put good'] + '/processes/foo',
+      };
+      var commandWasRun = null;
+      var server = createServer(penelope, config, function() {
+        penelope.runCommand = function() {
+          commandWasRun = arguments;
+        };
+        request.put(options, function (error, response, body) {
+          response.statusCode.should.equal(201);
+          should.exist(commandWasRun);
+          commandWasRun[0].should.equal('foo');
+          server.close(done);
+        });
+      });
+    });
+
   });
   describe('shutdown', function() {
     it('should kill the process when the last process exits if keepalive is off', function(done) {

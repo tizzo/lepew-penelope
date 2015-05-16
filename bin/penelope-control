@@ -25,6 +25,7 @@ var loader = new Loader();
 loader.add('/etc/penelope.yaml');
 loader.add(process.env['HOME'] + '/.penelope.yaml');
 loader.add(argv);
+loader.on('error', function() {});
 loader.load(function(error, config) {
 
   if (config.help) {
@@ -117,9 +118,9 @@ loader.load(function(error, config) {
         break;
 
       case 'restart':
-        request.put(baseURL + '/running-processes/' + name, options, function(error, response, body) {
+        request.del(baseURL + '/running-processes/' + name, options, function(error, response, body) {
           genericCallback.apply(this, arguments);
-          request.del(baseURL + '/running-processes/' + name, options, genericCallback);
+          request.post(baseURL + '/running-processes/' + name, options, genericCallback);
         });
         break;
 
